@@ -727,35 +727,41 @@ html,body { width:100%;height:100%;overflow:hidden;background:var(--bg);color:va
 
   /* Action bar — 2x2 grid on mobile */
   #action-bar {
-    flex-direction: row;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
     padding: 0;
     gap: 0;
-    border-radius: 16px;
-    width: calc(100vw - 32px);
-    max-width: 360px;
-    bottom: 16px;
+    border-radius: 20px;
+    width: calc(100vw - 40px);
+    max-width: 340px;
+    bottom: 20px;
     overflow: hidden;
+    background: rgba(16,13,10,0.97);
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
   }
   .abar-sep { display: none; }
   .abar-btn {
-    flex: 0 0 50%;
-    width: 50%;
+    display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    gap: 10px;
-    padding: 14px 16px;
+    gap: 11px;
+    padding: 16px 18px;
     border-radius: 0;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    box-sizing: border-box;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    border-right: 1px solid rgba(255,255,255,0.07);
+    background: transparent;
+    transition: background 0.2s;
   }
-  .abar-btn:nth-child(1) { border-right: 1px solid rgba(255,255,255,0.06); }
-  .abar-btn:nth-child(3) { border-right: 1px solid rgba(255,255,255,0.06); }
-  .abar-btn:nth-child(5) { border-right: 1px solid rgba(255,255,255,0.06); border-bottom: none; }
-  .abar-btn:nth-child(7) { border-bottom: none; }
-  .abar-ico { font-size: 18px; flex-shrink: 0; }
-  .abar-label { font-size: 11px; letter-spacing: .04em; text-align: left; }
+  .abar-btn:nth-child(2n) { border-right: none; }
+  .abar-btn:nth-last-child(-n+2) { border-bottom: none; }
+  .abar-btn:hover, .abar-btn:active { background: rgba(200,134,74,0.08); }
+  .abar-ico { font-size: 20px; flex-shrink: 0; line-height: 1; }
+  .abar-text { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+  .abar-label { font-family: var(--serif); font-size: 13px; font-weight: 400; color: rgba(255,252,245,0.90); letter-spacing: 0; text-align: left; text-transform: none; }
   .abar-sub { display: none; }
 
   /* HUD — slim */
@@ -1773,7 +1779,7 @@ const locs = [
     quote:'"Banking at scale is humbling. Every decision touches 240 million people."',
     stats:[{num:'3.5',label:'Years'},{num:'240M+',label:'Customers'},{num:'100+',label:'Designers supported'}],
     day:[{t:'9:00',a:'Harbour line commute',n:'Podcasts and people-watching from Chembur.'},{t:'10:00',a:'Design system syncs & sprint reviews',n:'Aligning across Axis Design Lab.'},{t:'13:00',a:'Irani café lunch run',n:'Best bun maska in the city, two lanes away.'},{t:'15:00',a:'Design audits & stakeholder reviews',n:'Ensuring quality and alignment at scale.'},{t:'19:00',a:'Harbour line back to Chembur',n:'Long commute — time to decompress and plan the next day.'}],
-    projects:[{title:'Investment Journeys & Digital Onboarding',year:'2021–2023',desc:'Led the redesign of investment journeys, PFM tools, and digital onboarding flows for Axis Bank banking products — including a major revamp of the Axis Securities trading platform.',tags:['Product Design','Investment UX','Onboarding']},{title:'Subzero 1.0 — Axis Bank Design System',year:'2022',desc:'Spearheaded creation of Axis Bank\'s design system (Subzero 1.0), supporting 100+ designers and developers. Established governance, component libraries, and accessibility standards.',tags:['Design Systems','Accessibility','Scale']}]
+    projects:[{title:'Investment Journeys & Digital Onboarding',year:'2021–2023',desc:'Led the redesign of investment journeys, PFM tools, and digital onboarding flows for Axis Bank banking products — including a major revamp of the Axis Securities trading platform.',tags:['Product Design','Investment UX','Onboarding']},{title:'Subzero 1.0 — Axis Bank Design System',year:'2022',desc:'Spearheaded creation of Axis Bank\'s design system (Subzero 1.0), supporting 100+ designers and developers. Established governance, component libraries, and accessibility standards.',tags:['Design Systems','Accessibility','Scale']},{title:'Reimagining the Mutual Fund Experience',year:'2023–2024',desc:'Turned a cluttered mutual fund discovery flow into a calm, confidence-first investing journey — from zero to a product 240M users could trust. Reduced drop-offs and increased first-time investor conversions.',tags:['Mutual Funds','Fintech','Mobile UX'],link:'https://www.notion.so/Reimagining-the-Mutual-Fund-Experience-for-Confident-Investing-2e81cde08e7080cfbbbeeaad5fd4e1b5'}]
   },
   { id:'andheri', name:'Drip Capital', sub:'Andheri · Jun 2019 – Mar 2021', type:'work', color:'#6aa3d4', icon:'💱', lat:19.1136, lng:72.8697,
     quote:'"B2B design is a different animal. Your user is a CFO with zero patience."',
@@ -1785,7 +1791,7 @@ const locs = [
     quote:'"At this level, design is strategy. Every call shapes the product roadmap."',
     stats:[{num:'Head of',label:'Product Design'},{num:'5',label:'Products'}],
     day:[{t:'8:30',a:'Eastern Express Highway to Thane',n:'Long drive. Podcasts on strategy and market trends.'},{t:'10:00',a:'Cross-functional leadership sessions',n:'Design vision, strategy, and roadmap alignment.'},{t:'13:00',a:'Working lunch — design critiques',n:'Feedback culture built here.'},{t:'15:00',a:'AI workflow explorations',n:'Integrating AI into prototyping and decision-making.'},{t:'19:30',a:'Drive back to Chembur',n:'Eastern Express in the evening. Long but predictable.'}],
-    projects:[{title:'Trading & Options UX — Ventura Platform',year:'2025',desc:'Driving design vision and strategy for Ventura\'s trading and investing products. Simplified options strategies and trader journeys (MTF, alerts, orders, portfolio) to improve usability and engagement.',tags:['Trading UX','Options','Wealth Tech']},{title:'Ventura Design Library',year:'2025',desc:'Laid the foundation for Ventura\'s Design Library — ensuring consistency, accessibility, and scalability across all products. Integrated AI into design workflows for faster prototyping and insights.',tags:['Design System','AI Workflows','Accessibility']}]
+    projects:[{title:'Trading & Options UX — Ventura Platform',year:'2025',desc:'Driving design vision and strategy for Ventura\'s trading and investing products. Simplified options strategies and trader journeys (MTF, alerts, orders, portfolio) to improve usability and engagement.',tags:['Trading UX','Options','Wealth Tech']},{title:'Ventura Design Library',year:'2025',desc:'Laid the foundation for Ventura\'s Design Library — ensuring consistency, accessibility, and scalability across all products. Integrated AI into design workflows for faster prototyping and insights.',tags:['Design System','AI Workflows','Accessibility']},{title:'Strategy Builder',year:'2025',desc:'Designed a visual options strategy builder for active traders — letting them construct, visualise, and execute multi-leg strategies without a finance degree. Complex derivatives made approachable.',tags:['Options','Strategy','Trading UX'],link:'https://www.notion.so/Ventura-Strategy-Builder-2fd1cde08e708048a1f7c727971c1845'}]
   },
   { id:'borivali', name:'Oyster Living', sub:'Borivali · Apr 2016 – Jul 2018', type:'work', color:'#6aa3d4', icon:'🏠', lat:19.2307, lng:72.8567,
     quote:'"Real estate is about dreaming. My job was to make the dream feel real on-screen."',
@@ -1879,7 +1885,7 @@ function doOpenPanel(loc){
 const locLogos={'dadar':'https://logo.clearbit.com/axisbank.com','andheri':'https://logo.clearbit.com/dripcapital.com','thane':'https://logo.clearbit.com/venturasecurities.com','borivali':'https://logo.clearbit.com/oyster.com','chembur':null,'matunga':null};
 const logoUrl=locLogos[loc.id]||null;
 const logoHtml=logoUrl?`<div class="proj-logo-wrap"><img src="${logoUrl}" class="proj-logo" onerror="this.parentElement.style.display='none'"></div>`:'';
-const projHTML=loc.projects.map(p=>`<div class="proj"><div class="proj-header">${logoHtml}<div class="proj-header-text"><div class="proj-title">${p.title}</div><div class="proj-year" style="color:${loc.color}88">${p.year||''}</div></div></div><div class="proj-body"><div class="proj-desc">${p.desc}</div><div class="proj-tags">${p.tags.map(t=>`<span class="proj-tag">${t}</span>`).join('')}</div></div></div>`).join('');
+const projHTML=loc.projects.map(p=>`<div class="proj"><div class="proj-header">${logoHtml}<div class="proj-header-text"><div class="proj-title">${p.title}</div><div class="proj-year" style="color:${loc.color}88">${p.year||''}</div></div></div><div class="proj-body"><div class="proj-desc">${p.desc}</div><div class="proj-tags" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;""><div style="display:flex;flex-wrap:wrap;gap:5px;">${p.tags.map(t=>`<span class="proj-tag">${t}</span>`).join('')}</div>${p.link?`<a href="${p.link}" target="_blank" style="font-family:var(--mono);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);text-decoration:none;white-space:nowrap;padding:5px 11px;border:1px solid rgba(200,134,74,0.35);border-radius:20px;flex-shrink:0;transition:background .2s;" onmouseover="this.style.background='rgba(200,134,74,0.1)'" onmouseout="this.style.background='transparent'">View →</a>`:''}</div></div></div>`).join('');
   document.getElementById('panel-body').innerHTML=`<div class="panel-section"><div class="p-quote" style="border-left:2px solid ${loc.color}">${loc.quote}</div></div><div class="panel-section"><div class="p-sec">A day here</div><div class="timeline">${dayHTML}</div></div><div class="panel-section"><div class="p-sec">Work from this chapter</div><div class="projects">${projHTML}</div></div>`;
   document.getElementById('panel-body').scrollTop=0;
   document.getElementById('panel').classList.add('open');
