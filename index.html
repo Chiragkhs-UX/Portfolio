@@ -1032,10 +1032,11 @@ a.proj-link .proj-body { pointer-events:none; }
 }
 #iam-idle-hint {
   position:fixed;
-  z-index:1800;pointer-events:none;
+  z-index:1800;pointer-events:all;
   opacity:0;
   transform:translate(20px,-50%);
   white-space:nowrap;
+  cursor:pointer;
 }
 #iam-idle-hint.show  { animation:bubblePop .38s cubic-bezier(.34,1.56,.64,1) forwards; }
 #iam-idle-hint.hide  { animation:bubbleHide .22s ease forwards; }
@@ -1110,7 +1111,7 @@ a.proj-link .proj-body { pointer-events:none; }
   position:relative;width:100%;max-width:680px;
 }
 #iam-close {
-  position:absolute;top:-8px;right:0;
+  position:fixed;top:16px;right:16px;
   width:36px;height:36px;border-radius:50%;
   background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);
   color:rgba(232,224,208,0.5);font-size:12px;
@@ -1375,7 +1376,7 @@ a.proj-link .proj-body { pointer-events:none; }
   <div class="iam-hint-inner" style="position:relative;">
     <div class="iam-hint-avatar"></div>
     <div class="iam-hint-prompt" id="iam-hint-text"></div>
-    <div class="iam-hint-cta">hold anywhere to know me</div>
+    <div class="iam-hint-cta">— tap or hold anywhere to know me</div>
   </div>
 </div>
 <div id="iam-press-ring"></div>
@@ -2278,6 +2279,14 @@ document.addEventListener('click', e => {
   let mouseX       = window.innerWidth / 2;
   let mouseY       = window.innerHeight / 2;
 
+  hintEl.addEventListener('click', function(e){
+    e.stopPropagation();
+    hintEl.classList.remove('show');
+    hintEl.classList.add('hide');
+    hintVisible = false;
+    openIam();
+  });
+
   const prompts = [
     "Curious about the person behind the pins?",
     "There's a story the map doesn't tell.",
@@ -2302,21 +2311,50 @@ document.addEventListener('click', e => {
   }
 
   // -- Idle hint --
-  // Soft notification pop sound via Web Audio API
+  // Subtle Creta-style horn via Web Audio API
   function playPopSound(){
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.type = 'sine';
-      o.frequency.setValueAtTime(880, ctx.currentTime);
-      o.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.08);
-      g.gain.setValueAtTime(0, ctx.currentTime);
-      g.gain.linearRampToValueAtTime(0.09, ctx.currentTime + 0.01);
-      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18);
-      o.start(ctx.currentTime);
-      o.stop(ctx.currentTime + 0.18);
+      const t = ctx.currentTime;
+
+      // Two-tone Creta horn: root + fifth, slight honk character
+      const freqs = [370, 466]; // F#4 + A#4 — the classic Hyundai press-horn interval
+      freqs.forEach(function(freq, i) {
+        const o  = ctx.createOscillator();
+        const g  = ctx.createGain();
+        const bq = ctx.createBiquadFilter();
+
+        // Sawtooth gives it that nasal horn buzz
+        o.type = 'sawtooth';
+        // Tiny pitch wobble — horns aren't perfect
+        o.frequency.setValueAtTime(freq * 1.004, t);
+        o.frequency.exponentialRampToValueAtTime(freq, t + 0.04);
+        o.frequency.exponentialRampToValueAtTime(freq * 0.997, t + 0.22);
+
+        // Bandpass to shape the honk tone
+        bq.type = 'bandpass';
+        bq.frequency.value = freq * 2.6;
+        bq.Q.value = 1.4;
+
+        // Envelope: louder than before
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(0.18 - i * 0.03, t + 0.022);
+        g.gain.setValueAtTime(0.18 - i * 0.03, t + 0.11);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
+
+        o.connect(bq);
+        bq.connect(g);
+        g.connect(ctx.destination);
+
+        // Second tone comes in 30ms after first — that double-punch feel
+        o.start(t + i * 0.03);
+        o.stop(t + 0.32);
+      });
+
+      // Vibration — short double-pulse matching the double honk
+      if (navigator.vibrate) {
+        navigator.vibrate([40, 180, 40]);
+      }
     } catch(e){}
   }
 
@@ -2330,19 +2368,24 @@ document.addEventListener('click', e => {
     }
     idleTimer = setTimeout(function(){
       if(!introGone) return;
+      if(document.getElementById('iam-overlay').classList.contains('show')) return;
       hintText.textContent = prompts[promptIdx % prompts.length];
       promptIdx++;
       positionHint(mouseX, mouseY);
+      playPopSound();
+      setTimeout(playPopSound, 380);
       hintEl.classList.remove('hide');
       hintEl.classList.add('show');
       hintVisible = true;
-      playPopSound();
     }, IDLE_MS);
   }
 
   document.addEventListener('mousemove', function(e){
     mouseX = e.clientX; mouseY = e.clientY;
-    if(hintVisible) positionHint(mouseX, mouseY);
+    if(hintVisible){
+      if(e.target.closest('#iam-idle-hint')) return; // don't reset while hovering hint
+      positionHint(mouseX, mouseY);
+    }
     resetIdle();
   });
   document.addEventListener('mousedown', resetIdle);
