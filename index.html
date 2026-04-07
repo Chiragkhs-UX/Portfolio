@@ -1211,8 +1211,9 @@ a.proj-link .proj-body { pointer-events:none; }
 #iam-overlay {
   position:fixed;inset:0;z-index:2200;
   background:rgba(24,22,20,0.97);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:48px 24px;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  padding-top:10vh;padding-bottom:40px;padding-left:24px;padding-right:24px;
+  overflow-y:auto;
   opacity:0;visibility:hidden;pointer-events:none;
   transition:opacity .5s cubic-bezier(.16,1,.3,1), visibility .5s;
 }
@@ -1269,7 +1270,7 @@ a.proj-link .proj-body { pointer-events:none; }
 .iam-pill.now .iam-thumb { transform:translateX(24px); }
 
 /* Journey state — scattered */
-.iam-journey { position:relative; }
+.iam-journey { position:relative; min-height:400px;}
 .iam-journey.hidden { display:none; }
 .iam-block {
   max-width:420px;
@@ -1290,7 +1291,7 @@ a.proj-link .proj-body { pointer-events:none; }
 
 /* Now state */
 .iam-now { display:none; }
-.iam-now.visible { display:flex;flex-direction:column;gap:28px; }
+.iam-now.visible { display:flex;flex-direction:column;gap:28px; min-height:400px;}
 .iam-now-para {
   font-family:var(--serif);font-style:italic;
   font-size:clamp(15px,1.6vw,18px);line-height:1.82;
@@ -1552,7 +1553,7 @@ a.proj-link .proj-body { pointer-events:none; }
     <div class="deck-sub">Case studies &amp; writing</div>
     <button class="deck-close" onclick="closeDeck('work-deck')">✕</button>
   </div>
-  <div class="deck-cards" id="work-cards"><div class="deck-count" id="work-count">3</div></div>
+  <div class="deck-cards" id="work-cards"><div class="deck-count" id="work-count">4</div></div>
   <div class="deck-hint">Tap View to open · Swipe to browse</div>
 </div>
 
@@ -1725,6 +1726,15 @@ var work_data = [
     desc: 'Designing a visual options strategy tool for active traders — making complex derivatives approachable without dumbing them down.',
     tags: ['Product Design', 'Wealth Tech', 'Trading'],
     link: 'https://www.notion.so/Ventura-Strategy-Builder-2fd1cde08e708048a1f7c727971c1845'
+  },
+  {
+    ico: '🧱',
+    type: 'case-study',
+    co: 'Axis Bank · Subzero 1.0',
+    title: 'Building a Design System at Scale',
+    desc: 'Behind the scenes of Subzero 1.0 — how we built Axis Bank\'s design system from scratch, supporting 100+ designers and developers across products.',
+    tags: ['Design Systems', 'Accessibility', 'Scale'],
+    link: 'https://chirragk.medium.com/how-we-built-subzero-1-0-axis-bank-design-system-a-behind-the-scenes-b1ec8c0ea774'
   },
   {
     ico: '✍️',
@@ -2588,10 +2598,13 @@ document.addEventListener('click', e => {
   const PRESS_MS   = 700;
   const hintEl     = document.getElementById('iam-idle-hint');
   const hintText   = document.getElementById('iam-hint-text');
+  // Popup auto-dismisses after fixed duration — no hover logic needed
   const ringEl     = document.getElementById('iam-press-ring');
   let idleTimer    = null;
   let pressTimer   = null;
   let hintVisible  = false;
+  let hintLocked   = false;
+  let hintDismissTimer = null; // auto-dismiss after fixed duration
   let iamIsNow     = false;
   let mouseX       = window.innerWidth / 2;
   let mouseY       = window.innerHeight / 2;
@@ -2678,6 +2691,7 @@ document.addEventListener('click', e => {
   function resetIdle(){
     clearTimeout(idleTimer);
     if(hintVisible){
+      clearTimeout(hintDismissTimer);
       hintEl.classList.remove('show');
       hintEl.classList.add('hide');
       setTimeout(()=>hintEl.classList.remove('hide'), 220);
@@ -2694,15 +2708,22 @@ document.addEventListener('click', e => {
       hintEl.classList.remove('hide');
       hintEl.classList.add('show');
       hintVisible = true;
+      // Auto-dismiss after 4 seconds regardless of mouse
+      clearTimeout(hintDismissTimer);
+      hintDismissTimer = setTimeout(function(){
+        if(!hintVisible) return;
+        hintEl.classList.remove('show');
+        hintEl.classList.add('hide');
+        setTimeout(function(){ hintEl.classList.remove('hide'); }, 220);
+        hintVisible = false;
+        resetIdle();
+      }, 4000);
     }, IDLE_MS);
   }
 
   document.addEventListener('mousemove', function(e){
     mouseX = e.clientX; mouseY = e.clientY;
-    if(hintVisible){
-      if(e.target.closest('#iam-idle-hint')) return; // don't reset while hovering hint
-      positionHint(mouseX, mouseY);
-    }
+    if(hintVisible) return; // popup is showing — ignore mouse movement
     resetIdle();
   });
   document.addEventListener('mousedown', resetIdle);
